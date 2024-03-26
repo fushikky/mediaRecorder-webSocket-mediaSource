@@ -1,6 +1,7 @@
 'use strict';
 
 const socket = new WebSocket("ws://localhost:80");
+socket.binaryType = 'arraybuffer';
 const mediaSource = new MediaSource();
 const callbackQueue = [];
 let sourceBuffer;
