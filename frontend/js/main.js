@@ -1,6 +1,6 @@
 'use strict';
 
-const socket = io.connect('http://localhost:80');
+const socket = new WebSocket("ws://localhost:80");
 const mediaSource = new MediaSource();
 const callbackQueue = [];
 let sourceBuffer;
@@ -54,8 +54,10 @@ mediaSource.addEventListener('sourceopen', function (e) {
 
 remoteVideo.src = window.URL.createObjectURL(mediaSource);
 
-socket.on('return', function (data) {
-    if (mediaSource.readyState == 'open') {
+socket.onmessage = function (event) {
+  const data = event.data;
+  console.log(data);
+  if (mediaSource.readyState == "open") {
         const arrayBuffer = new Uint8Array(data);
         if (!sourceBuffer.updating && callbackQueue.length == 0) {
             sourceBuffer.appendBuffer(arrayBuffer);
@@ -63,7 +65,7 @@ socket.on('return', function (data) {
             callbackQueue.push(arrayBuffer);
         }
     }
-});
+};
 
 function eventTest(event) {
     console.log('event Test', event);
@@ -88,7 +90,7 @@ function errorCallback(error) {
 
 function handleDataAvailable(event) {
     if (event.data && event.data.size > 0) {
-        socket.emit('blob', event.data);
+    socket.send(event.data);
     }
 }
 
@@ -137,6 +139,6 @@ function startStreaming() {
 }
 
 function stopStreaming() {
-    socket.disconnect();
+  socket.close();
     mediaRecorder.stop();
 }

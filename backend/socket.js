@@ -3,19 +3,16 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
-io.on('connection', function (socket) {
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 80 });
+
+wss.on('connection', function (ws) {
   console.log('websocket connected');
-  socket.on('blob', function (data) {
-    socket.emit('return', data);
+  ws.on('message', function (data) {
+    ws.send(data);
     console.log(data);
   });
-
-  socket.on('disconnect', function () {
+  ws.on('close', function () {
     console.log("socket disconnected!");
   });
-});
-
-
-http.listen(80, function () {
-  console.log('backend listening on *:80');
 });
